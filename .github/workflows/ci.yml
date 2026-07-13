@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: macos-15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate package definitions
+        run: |
+          ruby -c Formula/close-my-lid.rb
+          ruby -c Casks/close-my-lid.rb
+          brew style Formula/close-my-lid.rb Casks/close-my-lid.rb
+          brew tap --custom-remote krishkalaria12/close-my-lid "$GITHUB_WORKSPACE"
+          brew audit --strict --online --tap krishkalaria12/close-my-lid
+
+      - name: Install and test CLI formula
+        run: |
+          brew install --formula krishkalaria12/close-my-lid/close-my-lid
+          brew test krishkalaria12/close-my-lid/close-my-lid
+
+      - name: Verify cask artifact
+        run: brew fetch --cask krishkalaria12/close-my-lid/close-my-lid
+
+  automatic-tap-resolution:
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: macos-15
+
+    steps:
+      - name: Verify conventional tap resolution
+        run: |
+          brew tap krishkalaria12/close-my-lid
+          brew info --cask krishkalaria12/close-my-lid/close-my-lid
+          brew info --formula krishkalaria12/close-my-lid/close-my-lid
