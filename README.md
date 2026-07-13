@@ -16,11 +16,11 @@ brew install krishkalaria12/close-my-lid/close-my-lid
 
 ## Migrate an older custom tap
 
-If you installed Close My Lid before this dedicated tap existed, switch the existing tap remote in place:
+If you installed Close My Lid before this dedicated tap existed, replace the old custom tap clone. Installed packages are preserved:
 
 ```sh
-brew tap --custom-remote krishkalaria12/close-my-lid \
-  https://github.com/krishkalaria12/homebrew-close-my-lid
+brew untap --force krishkalaria12/close-my-lid
+brew tap krishkalaria12/close-my-lid
 ```
 
 Then update normally:
