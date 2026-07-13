@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Validate package definitions
         run: |
@@ -30,8 +30,12 @@ jobs:
           brew install --formula krishkalaria12/close-my-lid/close-my-lid
           brew test krishkalaria12/close-my-lid/close-my-lid
 
-      - name: Verify cask artifact
-        run: brew fetch --cask krishkalaria12/close-my-lid/close-my-lid
+      - name: Install and verify macOS app
+        run: |
+          app_directory="$RUNNER_TEMP/Applications"
+          brew install --cask krishkalaria12/close-my-lid/close-my-lid --appdir="$app_directory"
+          test -x "$app_directory/Close My Lid.app/Contents/MacOS/CloseMyLid"
+          file "$app_directory/Close My Lid.app/Contents/MacOS/CloseMyLid" | grep -F 'arm64'
 
   automatic-tap-resolution:
     if: github.event_name != 'pull_request'
